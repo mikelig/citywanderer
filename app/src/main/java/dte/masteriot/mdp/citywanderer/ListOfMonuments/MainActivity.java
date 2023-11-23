@@ -1,4 +1,4 @@
-package dte.masteriot.mdp.citywanderer;
+package dte.masteriot.mdp.citywanderer.ListOfMonuments;
 
 
 import android.content.Intent;
@@ -43,6 +43,13 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+
+import dte.masteriot.mdp.citywanderer.R;
+import dte.masteriot.mdp.citywanderer.RecyclerView.Dataset;
+import dte.masteriot.mdp.citywanderer.RecyclerView.MyAdapter;
+import dte.masteriot.mdp.citywanderer.RecyclerView.MyItemDetailsLookup;
+import dte.masteriot.mdp.citywanderer.RecyclerView.MyItemKeyProvider;
+import dte.masteriot.mdp.citywanderer.RecyclerView.MyOnItemActivatedListener;
 
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {

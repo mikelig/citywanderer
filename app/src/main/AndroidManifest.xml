@@ -24,7 +24,7 @@
 
             android:theme="@style/AppTheme.NoActionBar"
 
-            android:name="dte.masteriot.mdp.citywanderer.MainActivity"
+            android:name="dte.masteriot.mdp.citywanderer.ListOfMonuments.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,7 +33,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="dte.masteriot.mdp.citywanderer.InfoMonument"
+            android:name="dte.masteriot.mdp.citywanderer.MonumentInfo.InfoMonument"
             android:exported="false" />
         <!-- Mqtt Service -->
         <service android:name="org.eclipse.paho.android.service.MqttService"/>

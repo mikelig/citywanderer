@@ -1,4 +1,4 @@
-package dte.masteriot.mdp.citywanderer;
+package dte.masteriot.mdp.citywanderer.ListOfMonuments;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;

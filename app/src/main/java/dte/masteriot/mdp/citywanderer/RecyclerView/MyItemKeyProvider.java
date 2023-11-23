@@ -1,4 +1,4 @@
-package dte.masteriot.mdp.citywanderer;
+package dte.masteriot.mdp.citywanderer.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.util.Log;
@@ -26,7 +26,7 @@ public class MyItemKeyProvider extends ItemKeyProvider<Long> {
      * @param scope Scope can't be changed at runtime.
      */
     @SuppressLint("LongLogTag")
-    protected MyItemKeyProvider(int scope, RecyclerView rv) {
+    public MyItemKeyProvider(int scope, RecyclerView rv) {
         super(scope);
         recView = rv;
         Log.d(TAG, "MyItemKeyProvider() called");

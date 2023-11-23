@@ -1,4 +1,4 @@
-package dte.masteriot.mdp.citywanderer;
+package dte.masteriot.mdp.citywanderer.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.util.Log;
@@ -10,7 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.selection.ItemDetailsLookup;
 import androidx.recyclerview.widget.RecyclerView;
 
-final class MyItemDetailsLookup extends ItemDetailsLookup<Long> {
+public final class MyItemDetailsLookup extends ItemDetailsLookup<Long> {
 
     // From [https://developer.android.com/reference/androidx/recyclerview/selection/ItemDetailsLookup]:
     // The Selection library calls the method getItemDetails(MotionEvent) of an object of this class
@@ -22,7 +22,7 @@ final class MyItemDetailsLookup extends ItemDetailsLookup<Long> {
     private final RecyclerView mRecyclerView;
 
     @SuppressLint("LongLogTag")
-    MyItemDetailsLookup(RecyclerView recyclerView) {
+    public MyItemDetailsLookup(RecyclerView recyclerView) {
         Log.d(TAG, "MyItemDetailsLookup() called");
         mRecyclerView = recyclerView;
     }

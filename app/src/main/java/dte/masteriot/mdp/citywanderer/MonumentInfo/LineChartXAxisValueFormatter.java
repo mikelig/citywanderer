@@ -1,4 +1,4 @@
-package dte.masteriot.mdp.citywanderer;
+package dte.masteriot.mdp.citywanderer.MonumentInfo;
 
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 

@@ -1,4 +1,4 @@
-package dte.masteriot.mdp.citywanderer;
+package dte.masteriot.mdp.citywanderer.RecyclerView;
 
 import android.util.Log;
 
@@ -12,7 +12,7 @@ public class Dataset {
     private static final String TAG = "DATASET";
     private List<Item> listofitems;
 
-    Dataset(ArrayList<String> namesList) {
+    public Dataset(ArrayList<String> namesList) {
         Log.d(TAG, "Dataset() called, namesList = " + namesList.toString());
         listofitems = new ArrayList<>();
         for(int i = 0; i < namesList.size(); i++) {
@@ -27,11 +27,11 @@ public class Dataset {
         return "monuments/" + input.toLowerCase().replaceAll("\\s", "") + "/concurrency";
     }
 
-    int getSize() {
+    public int getSize() {
         return listofitems.size();
     }
 
-    Item getItemAtPosition(int pos) {
+    public Item getItemAtPosition(int pos) {
         return listofitems.get(pos);
     }
 

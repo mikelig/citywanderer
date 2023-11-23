@@ -1,4 +1,4 @@
-package dte.masteriot.mdp.citywanderer;
+package dte.masteriot.mdp.citywanderer.RecyclerView;
 
 import android.util.Log;
 
@@ -9,7 +9,7 @@ public class Item {
     private Long key; // In this app we use keys of type Long
     private String mqttTopic;
 
-    Item(String title, Long key, String topic) {
+    public Item(String title, Long key, String topic) {
         Log.d(TAG, "Item to be created. Title = " + title + " key = " + Long.toString(key));
         this.title = title;
         this.key = key;

@@ -1,4 +1,4 @@
-package dte.masteriot.mdp.citywanderer;
+package dte.masteriot.mdp.citywanderer.RecyclerView;
 
 
 import android.annotation.SuppressLint;
@@ -10,6 +10,8 @@ import android.view.MotionEvent;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.ItemDetailsLookup;
 import androidx.recyclerview.selection.OnItemActivatedListener;
+
+import dte.masteriot.mdp.citywanderer.MonumentInfo.InfoMonument;
 
 public class MyOnItemActivatedListener implements OnItemActivatedListener<Long> {
 

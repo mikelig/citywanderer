@@ -1,9 +1,11 @@
-package dte.masteriot.mdp.citywanderer;
+package dte.masteriot.mdp.citywanderer.RecyclerView;
 
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
+
+import dte.masteriot.mdp.citywanderer.R;
 
 public class MyViewHolder extends RecyclerView.ViewHolder {
 

@@ -1,4 +1,4 @@
-package dte.masteriot.mdp.citywanderer;
+package dte.masteriot.mdp.citywanderer.MonumentInfo;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -60,6 +60,9 @@ import android.hardware.SensorManager;
 
 import android.provider.Settings;
 import android.view.WindowManager;
+
+import dte.masteriot.mdp.citywanderer.ListOfMonuments.MainActivity;
+import dte.masteriot.mdp.citywanderer.R;
 
 
 public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnInitListener, SensorEventListener {
