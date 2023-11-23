@@ -209,6 +209,7 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
         if (textToSpeech != null) {
             textToSpeech.stop();
             textToSpeech.shutdown();
+            dte.masteriot.mdp.citywanderer.RecyclerView.MyOnItemActivatedListener.isItemClicked = false;
         }
         super.onDestroy();
 }

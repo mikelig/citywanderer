@@ -24,6 +24,7 @@ public class MyOnItemActivatedListener implements OnItemActivatedListener<Long> 
     private final Context context;
     private Dataset dataset; // reference to the dataset, so that the activated item's data can be accessed if necessary
     private  String xmlText;
+    public static boolean isItemClicked = false;
 
     public MyOnItemActivatedListener(Context context, Dataset ds) {
         this.context = context;
@@ -41,19 +42,23 @@ public class MyOnItemActivatedListener implements OnItemActivatedListener<Long> 
         // when no selection exists and the user taps an item with her finger,
         // or double clicks an item with a pointing device like a Mouse."
 
-        String monument = dataset.getItemAtPosition(itemdetails.getPosition()).getTitle();
-        String topic = dataset.getItemAtPosition(itemdetails.getPosition()).getTopic();
+        if (!isItemClicked) {
+            isItemClicked = true;
+            String monument = dataset.getItemAtPosition(itemdetails.getPosition()).getTitle();
+            String topic = dataset.getItemAtPosition(itemdetails.getPosition()).getTopic();
 
-        Log.d(TAG, "Clicked item with position = " + itemdetails.getPosition()
-                + " and key = " + itemdetails.getSelectionKey() + "title = " + monument);
+            Log.d(TAG, "Clicked item with position = " + itemdetails.getPosition()
+                    + " and key = " + itemdetails.getSelectionKey() + "title = " + monument);
 
-        Intent i = new Intent(context, InfoMonument.class);
-        i.setAction(Intent.ACTION_SEND);
-        i.putExtra("XML_TEXT", xmlText);
-        i.putExtra("MONUMENT", monument);
-        i.putExtra("TOPIC", topic);
-        //context.startActivity(i);
-        context.startActivity(i);
+            Intent i = new Intent(context, InfoMonument.class);
+            i.setAction(Intent.ACTION_SEND);
+            i.putExtra("XML_TEXT", xmlText);
+            i.putExtra("MONUMENT", monument);
+            i.putExtra("TOPIC", topic);
+            //context.startActivity(i);
+            context.startActivity(i);
+
+        }
         return true;
     }
 
