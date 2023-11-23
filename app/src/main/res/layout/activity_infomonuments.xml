@@ -70,7 +70,6 @@
             android:id="@+id/address"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="36dp"
             android:text="address"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -87,7 +86,7 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/url"
             android:layout_marginRight="10dp"
-            app:layout_constraintBottom_toTopOf="@+id/mqttButton"
+            app:layout_constraintBottom_toTopOf="@+id/radioGroup"
             app:layout_constraintTop_toBottomOf="@+id/address"/>
 
         <TextView
@@ -97,31 +96,28 @@
             android:layout_marginTop="10dp"
             android:layout_marginBottom="20dp"
             android:text="url"
-            app:layout_constraintStart_toEndOf="@+id/moreInfo"
             app:layout_constraintBottom_toTopOf="@+id/radioGroup"
+            app:layout_constraintStart_toEndOf="@+id/moreInfo"
             app:layout_constraintTop_toBottomOf="@+id/address"
-            app:layout_constraintLeft_toRightOf="@+id/moreInfo"
-            app:layout_constraintRight_toRightOf="parent"
              />
 
 
         <RadioGroup
             android:id="@+id/radioGroup"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_width="340dp"
+            android:layout_height="53dp"
             android:layout_marginBottom="5dp"
+            android:orientation="horizontal"
             app:layout_constraintBottom_toTopOf="@id/mqttButton"
-            app:layout_constraintTop_toBottomOf="@+id/url"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" >
+            app:layout_constraintStart_toStartOf="parent">
 
             <RadioButton
                 android:id="@+id/radioOption1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="1"
                 android:layout_marginEnd="20dp"
+                android:text="1"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/moreInfo" />
@@ -130,8 +126,8 @@
                 android:id="@+id/radioOption2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="2"
                 android:layout_marginEnd="20dp"
+                android:text="2"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/radioOption1"
                 app:layout_constraintTop_toBottomOf="@+id/moreInfo" />
@@ -140,18 +136,18 @@
                 android:id="@+id/radioOption3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="3"
                 android:layout_marginEnd="20dp"
+                android:text="3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/moreInfo"/>
+                app:layout_constraintTop_toBottomOf="@+id/moreInfo" />
 
             <RadioButton
                 android:id="@+id/radioOption4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="4"
                 android:layout_marginEnd="20dp"
+                android:text="4"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/moreInfo" />
@@ -160,8 +156,8 @@
                 android:id="@+id/radioOption5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="5"
                 android:layout_marginEnd="20dp"
+                android:text="5"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/moreInfo" />
