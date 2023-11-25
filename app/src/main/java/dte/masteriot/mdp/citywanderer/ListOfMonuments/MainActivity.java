@@ -41,8 +41,8 @@ import android.hardware.SensorManager;
 import android.provider.Settings;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Button;
 
 import dte.masteriot.mdp.citywanderer.R;
 import dte.masteriot.mdp.citywanderer.RecyclerView.Dataset;
