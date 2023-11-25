@@ -39,10 +39,12 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.provider.Settings;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 
 import dte.masteriot.mdp.citywanderer.R;
 import dte.masteriot.mdp.citywanderer.RecyclerView.Dataset;
@@ -62,15 +64,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private ArrayList<String> monumentNameList = createTestMonumentList();
     ExecutorService es;
     MyOnItemActivatedListener onItemActivatedListener;
-    private Dataset dataset;
+    public static Dataset dataset;
 
     private RecyclerView recyclerView;
     private SelectionTracker<Long> tracker;
     private static final String URL_XML_MONUMENTS = "https://www.zaragoza.es/sede/servicio/monumento.xml";
-
     // MQTT
     final String mqttServerUri = "tcp://192.168.56.1:1883";
-    String publishMessage = "Hello World!";
     MqttAndroidClient mqttAndroidClient;
     MqttConnectOptions mqttConnectOptions;
     Long tsLong = System.currentTimeMillis()/1000;
@@ -80,8 +80,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Context mContext;
     private SensorManager sensorManager;
     private Sensor lightSensor;
-    private Button searchMonument;
+    private ImageButton searchMonument;
     private EditText editText;
+    private boolean doThread = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -277,9 +278,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
-
-
-
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -410,4 +408,5 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         return searchList;
 
     }
+
 }

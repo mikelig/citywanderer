@@ -1,5 +1,8 @@
 package dte.masteriot.mdp.citywanderer.MonumentInfo;
 
+import static dte.masteriot.mdp.citywanderer.ListOfMonuments.MainActivity.dataset;
+
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -26,6 +29,7 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -46,10 +50,8 @@ import java.util.concurrent.TimeUnit;
 import android.widget.RadioGroup;
 import android.widget.RadioButton;
 import android.widget.Toast;
+import org.jsoup.Jsoup;
 
-//import com.google.cloud.translate.Translate;
-//import com.google.cloud.translate.TranslateOptions;
-//import com.google.cloud.translate.Translation;
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
@@ -82,6 +84,9 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
     private Button speakButton;
     private SensorManager sensorManager;
     private Sensor lightSensor;
+    private int position;
+    private FloatingActionButton button_left;
+    private FloatingActionButton button_right;
     String textWeb;
     RadioGroup radioGroup;
     Button mqttButton;
@@ -106,6 +111,8 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
         imageView = findViewById(R.id.imageMonument);
         url = findViewById(R.id.url);
         chart = (LineChart) findViewById(R.id.chart);
+        button_left = findViewById(R.id.left);
+        button_right = findViewById(R.id.right);
         //setupToolbar();
         textToSpeech = new TextToSpeech(this, this);
         speakButton = findViewById(R.id.textToSpeechButton);
@@ -143,6 +150,54 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
           }
         });
 
+        button_right.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (position != dataset.getSize()-1){
+                    // Acciones cuando se detecta un deslizamiento hacia la izquierda
+                    Log.d("Swipe", "Izquierda");
+
+                    // Acciones cuando se detecta un deslizamiento hacia la derecha
+                    Log.d("Swipe", "Derecha");
+                    String monument = dataset.getItemAtPosition(position +1).getTitle();
+                    String topic = dataset.getItemAtPosition(position + 1 ).getTopic();
+
+                    Intent i = new Intent((MainActivity) MainActivity.getInstance(), InfoMonument.class);
+                    i.setAction(Intent.ACTION_SEND);
+                    i.putExtra("XML_TEXT", xmlText);
+                    i.putExtra("MONUMENT", monument);
+                    i.putExtra("TOPIC", topic);
+                    i.putExtra("position", position + 1 );
+                    Context context = (MainActivity) MainActivity.getInstance();
+                    context.startActivity(i);
+                }
+            }
+        });
+
+        button_left.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (position != dataset.getSize()-1){
+                    // Acciones cuando se detecta un deslizamiento hacia la izquierda
+                    Log.d("Swipe", "Izquierda");
+
+                    // Acciones cuando se detecta un deslizamiento hacia la derecha
+                    Log.d("Swipe", "Derecha");
+                    String monument = dataset.getItemAtPosition(position +1).getTitle();
+                    String topic = dataset.getItemAtPosition(position + 1 ).getTopic();
+
+                    Intent i = new Intent((MainActivity) MainActivity.getInstance(), InfoMonument.class);
+                    i.setAction(Intent.ACTION_SEND);
+                    i.putExtra("XML_TEXT", xmlText);
+                    i.putExtra("MONUMENT", monument);
+                    i.putExtra("TOPIC", topic);
+                    i.putExtra("position", position + 1 );
+                    Context context = (MainActivity) MainActivity.getInstance();
+                    context.startActivity(i);
+                }
+            }
+        });
+
         mqttButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -172,12 +227,8 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
 
                          */
 
-
                         Entry e = new Entry((float) getTimeInHours(), (int) radioButtonTextAsInt);
                         do_chart(e);
-
-
-
 
                         publishMessage(mqttClient, specificTopic, selectedText);
 
@@ -193,6 +244,8 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
         if (Intent.ACTION_SEND.equals(action)) {
             xmlText = intent.getStringExtra("XML_TEXT");
             String monument = intent.getStringExtra("MONUMENT");
+            position = intent.getIntExtra("position",0);
+            Log.d("Swipe", "position: " + position);
 
             if (monument != null && xmlText != null) {
                 appbar.setTitle(monument);
@@ -274,8 +327,7 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
                         else if ("description".equals(elementName)){
                             if (monument_found){
                                 textDescription = parser.nextText();
-                                //Translation translation = translate.translate(textDescription, Translate.TranslateOption.targetLanguage("en"));
-                                //textDescription = translation.getTranslatedText();
+                                textDescription = manipularHTML(textDescription);
                                 description.setText(Html.fromHtml(textDescription));
                             }
                         }
@@ -373,6 +425,14 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finishAffinity(); // Cierra la actividad actual y todas las actividades asociadas
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+    }
+
     public void publishMessage(MqttAndroidClient mqttClient, String topic, String msg) {
         MqttMessage message = new MqttMessage();
         message.setPayload(msg.getBytes());
@@ -446,6 +506,18 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
     private void setConcurrencyData() {
         // now in hours
         long now = TimeUnit.MILLISECONDS.toHours(System.currentTimeMillis());
+
+    }
+
+    private String manipularHTML(String html) {
+        // Parsear el HTML con Jsoup
+        org.jsoup.nodes.Document document = Jsoup.parse(html);
+
+        // Seleccionar todas las etiquetas 'a' y su contenido y eliminarlas
+        document.select("a").remove();
+
+        // Obtener el texto modificado
+        return document.body().text();
 
     }
 }

@@ -55,7 +55,7 @@ public class MyOnItemActivatedListener implements OnItemActivatedListener<Long> 
             i.putExtra("XML_TEXT", xmlText);
             i.putExtra("MONUMENT", monument);
             i.putExtra("TOPIC", topic);
-            //context.startActivity(i);
+            i.putExtra("position", itemdetails.getPosition() );
             context.startActivity(i);
 
         }

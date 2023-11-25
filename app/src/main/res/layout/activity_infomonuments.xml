@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
+    android:clickable="true"
+    android:focusable="true"
     android:orientation="vertical"
     tools:context=".MonumentInfo.InfoMonument">
 
@@ -17,6 +20,7 @@
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/app_bar_layout"
             android:layout_width="match_parent"
+            android:clickable="true"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
             tools:ignore="MissingConstraints">
@@ -32,12 +36,39 @@
                 app:titleTextColor="#FFFFFF" />
         </com.google.android.material.appbar.AppBarLayout>
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:rotation="90"
+            app:backgroundTint="#E9CCBCF8"
+            app:layout_constraintBottom_toTopOf="@+id/descriptionMonument"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/app_bar_layout"
+            app:srcCompat="@android:drawable/arrow_down_float" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:rotation="-90"
+            app:backgroundTint="#E9CCBCF8"
+            app:layout_constraintBottom_toTopOf="@+id/descriptionMonument"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/app_bar_layout"
+            app:srcCompat="@android:drawable/arrow_down_float" />
+
         <TextView
             android:id="@+id/descriptionMonument"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop = "10dp"
+            android:layout_marginTop = "25dp"
             android:text="Description..."
+            android:clickable="true"
             android:gravity = "fill"
             app:layout_constraintBottom_toTopOf="@+id/imageMonument"
             app:layout_constraintEnd_toEndOf="parent"
@@ -61,6 +92,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_marginBottom="20dp"
+            android:clickable="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textToSpeechButton"
@@ -71,6 +103,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="address"
+            android:clickable="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/imageMonument" />
@@ -82,6 +115,7 @@
             android:layout_marginTop="10dp"
             android:layout_marginBottom="20dp"
             android:text="More info: "
+            android:clickable="true"
             app:layout_constraintEnd_toStartOf="@+id/url"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/url"
@@ -96,6 +130,7 @@
             android:layout_marginTop="10dp"
             android:layout_marginBottom="20dp"
             android:text="url"
+            android:clickable="true"
             app:layout_constraintBottom_toTopOf="@+id/radioGroup"
             app:layout_constraintStart_toEndOf="@+id/moreInfo"
             app:layout_constraintTop_toBottomOf="@+id/address"
@@ -106,6 +141,7 @@
             android:id="@+id/radioGroup"
             android:layout_width="340dp"
             android:layout_height="53dp"
+            android:clickable="true"
             android:layout_marginBottom="5dp"
             android:orientation="horizontal"
             app:layout_constraintBottom_toTopOf="@id/mqttButton"
@@ -183,6 +219,7 @@
             android:layout_width="match_parent"
             android:layout_height="200sp"
             android:layout_marginTop="64dp"
+            android:clickable="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
