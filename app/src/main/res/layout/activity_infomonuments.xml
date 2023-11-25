@@ -62,6 +62,21 @@
             app:layout_constraintTop_toBottomOf="@+id/app_bar_layout"
             app:srcCompat="@android:drawable/arrow_down_float" />
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/exit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:rotation="-90"
+            app:backgroundTint="#E9CCBCF8"
+            app:layout_constraintBottom_toTopOf="@+id/descriptionMonument"
+            app:layout_constraintEnd_toStartOf="@+id/right"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/left"
+            app:layout_constraintTop_toBottomOf="@+id/app_bar_layout"
+            app:srcCompat="@android:drawable/stat_sys_upload" />
+
         <TextView
             android:id="@+id/descriptionMonument"
             android:layout_width="wrap_content"

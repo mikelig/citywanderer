@@ -87,6 +87,7 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
     private int position;
     private FloatingActionButton button_left;
     private FloatingActionButton button_right;
+    private FloatingActionButton button_exit;
     String textWeb;
     RadioGroup radioGroup;
     Button mqttButton;
@@ -113,7 +114,7 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
         chart = (LineChart) findViewById(R.id.chart);
         button_left = findViewById(R.id.left);
         button_right = findViewById(R.id.right);
-        //setupToolbar();
+        button_exit = findViewById(R.id.exit);
         textToSpeech = new TextToSpeech(this, this);
         speakButton = findViewById(R.id.textToSpeechButton);
         radioGroup = findViewById(R.id.radioGroup);
@@ -150,15 +151,20 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
           }
         });
 
+        button_exit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finishAffinity(); // Cierra la actividad actual y todas las actividades asociadas
+                Intent intent = new Intent((MainActivity) MainActivity.getInstance(), MainActivity.class);
+                startActivity(intent);
+            }
+        });
+
         button_right.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (position != dataset.getSize()-1){
-                    // Acciones cuando se detecta un deslizamiento hacia la izquierda
-                    Log.d("Swipe", "Izquierda");
 
-                    // Acciones cuando se detecta un deslizamiento hacia la derecha
-                    Log.d("Swipe", "Derecha");
                     String monument = dataset.getItemAtPosition(position +1).getTitle();
                     String topic = dataset.getItemAtPosition(position + 1 ).getTopic();
 
@@ -177,21 +183,17 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
         button_left.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (position != dataset.getSize()-1){
-                    // Acciones cuando se detecta un deslizamiento hacia la izquierda
-                    Log.d("Swipe", "Izquierda");
+                if (position != 0){
 
-                    // Acciones cuando se detecta un deslizamiento hacia la derecha
-                    Log.d("Swipe", "Derecha");
-                    String monument = dataset.getItemAtPosition(position +1).getTitle();
-                    String topic = dataset.getItemAtPosition(position + 1 ).getTopic();
+                    String monument = dataset.getItemAtPosition(position - 1).getTitle();
+                    String topic = dataset.getItemAtPosition(position - 1 ).getTopic();
 
                     Intent i = new Intent((MainActivity) MainActivity.getInstance(), InfoMonument.class);
                     i.setAction(Intent.ACTION_SEND);
                     i.putExtra("XML_TEXT", xmlText);
                     i.putExtra("MONUMENT", monument);
                     i.putExtra("TOPIC", topic);
-                    i.putExtra("position", position + 1 );
+                    i.putExtra("position", position - 1 );
                     Context context = (MainActivity) MainActivity.getInstance();
                     context.startActivity(i);
                 }
