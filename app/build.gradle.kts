@@ -45,5 +45,7 @@ dependencies {
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
     implementation("androidx.recyclerview:recyclerview-selection:1.1.0")
     implementation("androidx.recyclerview:recyclerview:1.3.1")
+    implementation("org.jsoup:jsoup:1.14.3")
+
 
 }

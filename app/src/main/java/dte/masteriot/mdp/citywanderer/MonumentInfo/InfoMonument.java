@@ -63,7 +63,8 @@ import android.view.WindowManager;
 
 import dte.masteriot.mdp.citywanderer.ListOfMonuments.MainActivity;
 import dte.masteriot.mdp.citywanderer.R;
-
+import org.jsoup.Jsoup;
+import java.io.IOException;
 
 public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnInitListener, SensorEventListener {
     private static final String TAG = "DATASET";
@@ -274,6 +275,7 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
                         else if ("description".equals(elementName)){
                             if (monument_found){
                                 textDescription = parser.nextText();
+                                textDescription = manipularHTML(textDescription);
                                 //Translation translation = translate.translate(textDescription, Translate.TranslateOption.targetLanguage("en"));
                                 //textDescription = translation.getTranslatedText();
                                 description.setText(Html.fromHtml(textDescription));
@@ -446,6 +448,18 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
     private void setConcurrencyData() {
         // now in hours
         long now = TimeUnit.MILLISECONDS.toHours(System.currentTimeMillis());
+
+    }
+
+    private String manipularHTML(String html) {
+        // Parsear el HTML con Jsoup
+        org.jsoup.nodes.Document document = Jsoup.parse(html);
+
+        // Seleccionar todas las etiquetas 'a' y su contenido y eliminarlas
+        document.select("a").remove();
+
+        // Obtener el texto modificado
+        return document.body().text();
 
     }
 }
