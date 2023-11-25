@@ -48,6 +48,7 @@ import android.widget.ImageButton;
 
 import dte.masteriot.mdp.citywanderer.R;
 import dte.masteriot.mdp.citywanderer.RecyclerView.Dataset;
+import dte.masteriot.mdp.citywanderer.RecyclerView.Item;
 import dte.masteriot.mdp.citywanderer.RecyclerView.MyAdapter;
 import dte.masteriot.mdp.citywanderer.RecyclerView.MyItemDetailsLookup;
 import dte.masteriot.mdp.citywanderer.RecyclerView.MyItemKeyProvider;
@@ -183,6 +184,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             @Override
             public void messageArrived(String topic, MqttMessage message) {
                 addToHistory(topic + "  Incoming message: " + new String(message.getPayload()));
+                Item item = dataset.searchItemByTopic(topic);
+                // Current timestamp!!
+                long currentTimestampMillis = System.currentTimeMillis();
+                int timestamp = (int) currentTimestampMillis / 1000;
+                if (item != null) {
+                    item.addPoint(timestamp, Integer.parseInt(message.toString()));
+                    Log.d("POINT", "Goint to add point with cocurrency: " + message.toString());
+                }
             }
 
             @Override
