@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import dte.masteriot.mdp.citywanderer.MonumentInfo.Point;
 
+
 public class Item {
     // This class contains the actual data of each item of the dataset
     private static final String TAG = "DATASET";

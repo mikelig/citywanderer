@@ -101,11 +101,13 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
 
     List<ILineDataSet> dataSets;
     List<Entry> ValuesConcurrent;
+    private static InfoMonument instance; // implemented to use publish() from InfoMonuments.java
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_infomonuments);
+        instance = this;
         appbar = findViewById(R.id.appbar);
         description = findViewById(R.id.descriptionMonument);
         address = findViewById(R.id.address);
@@ -229,8 +231,8 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
 
                          */
 
-                        Entry e = new Entry((float) getTimeInHours(), (int) radioButtonTextAsInt);
-                        do_chart(e);
+
+                        //do_chart();
 
                         publishMessage(mqttClient, specificTopic, selectedText);
 
@@ -304,7 +306,7 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             parser.setInput(is, null);
 
-            do_chart(new Entry(0, 0));
+            //do_chart(0,0);
 
             int eventType = parser.getEventType(); // current event state of the parser
             boolean monument_found = false;
@@ -376,9 +378,10 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
 
     }
 
-    private void do_chart (Entry e) {
+    public void do_chart (double timestamp, double concurrency) {
 
         // List of datasets:
+        Entry e = new Entry((float) timestamp, (int) concurrency);
         ValuesConcurrent.add(e);
 
         /*
@@ -521,6 +524,10 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
         // Obtener el texto modificado
         return document.body().text();
 
+    }
+
+    public static InfoMonument getInstance() {
+        return instance;
     }
 }
 
