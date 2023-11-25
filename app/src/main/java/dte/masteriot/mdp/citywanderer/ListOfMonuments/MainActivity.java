@@ -41,7 +41,7 @@ import android.hardware.SensorManager;
 import android.provider.Settings;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.EditText;
 
 import dte.masteriot.mdp.citywanderer.R;
@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Context mContext;
     private SensorManager sensorManager;
     private Sensor lightSensor;
-    private Button searchMonument;
+    private ImageButton searchMonument;
     private EditText editText;
 
     @Override

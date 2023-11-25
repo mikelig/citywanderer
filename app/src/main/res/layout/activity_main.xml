@@ -25,41 +25,27 @@
             app:titleTextColor="#FFFFFF" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <GridLayout
-        android:id="@+id/Search_lineral"
-        android:layout_width="366dp"
-        android:layout_height="100dp"
-        android:orientation="vertical"
-        android:padding="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/app_bar_layout"
-        app:layout_constraintVertical_bias="0.0"
-        tools:ignore="MissingConstraints,NotSibling"
-        tools:layout_editor_absoluteX="9dp">
+    <EditText
+        android:id="@+id/plain_text_input"
+        android:layout_width="246dp"
+        android:layout_height="59dp"
+        android:hint="Search for..."
+        android:inputType="text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/app_bar_layout"
+        tools:ignore="TouchTargetSizeCheck" />
 
-        <EditText
-            android:id="@+id/plain_text_input"
-            android:layout_width="246dp"
-            android:layout_height="59dp"
-            android:hint="Search for..."
-            android:inputType="text"
-            app:layout_constraintTop_toBottomOf="@+id/app_bar_layout"
-            tools:ignore="TouchTargetSizeCheck" />
-
-        <Button
-            android:id="@+id/buttonSearch"
-            style="@style/Widget.Material3.CircularProgressIndicator"
-            android:layout_width="75dp"
-            android:layout_height="51dp"
-            android:layout_row="0"
-            android:layout_column="2"
-            android:text="S"
-            android:textColor="#FFFFFF"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@+id/app_bar_layout" />
-
-    </GridLayout>
+    <ImageButton
+        android:id="@+id/buttonSearch"
+        android:layout_width="75dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/white"
+        android:scaleType="fitCenter"
+        android:src="@drawable/lupa"
+        android:contentDescription="search"
+        app:layout_constraintStart_toEndOf="@+id/plain_text_input"
+        app:layout_constraintTop_toBottomOf="@+id/app_bar_layout" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
@@ -69,7 +55,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Search_lineral"
+        app:layout_constraintTop_toBottomOf="@+id/plain_text_input"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
