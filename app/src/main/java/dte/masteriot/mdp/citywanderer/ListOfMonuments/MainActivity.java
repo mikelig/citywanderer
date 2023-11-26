@@ -47,6 +47,7 @@ import dte.masteriot.mdp.citywanderer.RecyclerView.MyAdapter;
 import dte.masteriot.mdp.citywanderer.RecyclerView.MyItemDetailsLookup;
 import dte.masteriot.mdp.citywanderer.RecyclerView.MyItemKeyProvider;
 import dte.masteriot.mdp.citywanderer.RecyclerView.MyOnItemActivatedListener;
+import dte.masteriot.mdp.citywanderer.MonumentInfo.InfoMonument;
 
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
@@ -221,7 +222,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 int timestamp = (int) currentTimestampMillis / 1000;
                 if (item != null) {
                     item.addPoint(timestamp, Integer.parseInt(message.toString()));
-                    Log.d("POINT", "Goint to add point with cocurrency: " + message.toString());
+                    Log.d("POINT", "Going to add point with cocurrency: " + message.toString());
+                    ((InfoMonument) InfoMonument.getInstance()).do_chart(timestamp, Integer.parseInt(message.toString()));
                 }
             }
 

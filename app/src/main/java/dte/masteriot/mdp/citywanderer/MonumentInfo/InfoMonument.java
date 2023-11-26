@@ -96,12 +96,14 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
 
     //Others
     private int position;
+    private static InfoMonument instance;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_infomonuments);
+        instance = this;
 
         //Widgets
         Toolbar appbar = findViewById(R.id.appbar);
@@ -243,9 +245,6 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
 
                          */
 
-                        Entry e = new Entry((float) getTimeInHours(), (int) radioButtonTextAsInt);
-                        do_chart(e);
-
                         publishMessage(mqttClient, specificTopic, selectedText);
 
                         // Do something with the selected text (e.g., display in a Toast)
@@ -364,7 +363,7 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             parser.setInput(is, null);
 
-            do_chart(new Entry(0, 0));
+            do_chart(0,0);
 
             int eventType = parser.getEventType(); // current event state of the parser
             boolean monument_found = false;
@@ -471,9 +470,10 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
         return seconds;
     }
 
-    private void do_chart (Entry e) {
+    public void do_chart (double timestamp, double concurrency)  {
 
         // List of datasets:
+        Entry e = new Entry((float) timestamp, (int) concurrency);
         ValuesConcurrent.add(e);
 
         /*
@@ -523,6 +523,10 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
         // now in hours
         long now = TimeUnit.MILLISECONDS.toHours(System.currentTimeMillis());
 
+    }
+
+    public static InfoMonument getInstance() {
+        return instance;
     }
 
 }
