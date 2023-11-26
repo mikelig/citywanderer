@@ -2,7 +2,6 @@ package dte.masteriot.mdp.citywanderer.ListOfMonuments;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 
 import java.util.ArrayList;

@@ -12,13 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public final class MyItemDetailsLookup extends ItemDetailsLookup<Long> {
 
-    // From [https://developer.android.com/reference/androidx/recyclerview/selection/ItemDetailsLookup]:
-    // The Selection library calls the method getItemDetails(MotionEvent) of an object of this class
-    // when it needs access to information about the area and/or ItemDetailsLookup.ItemDetails
-    // under a MotionEvent
-
     private static final String TAG = "TAGListOfItems, MyItemDetailsLookup";
-
     private final RecyclerView mRecyclerView;
 
     @SuppressLint("LongLogTag")

@@ -1,7 +1,6 @@
 package dte.masteriot.mdp.citywanderer.RecyclerView;
 
 import android.util.Log;
-
 import java.util.Objects;
 
 public class Item {
@@ -38,7 +37,5 @@ public class Item {
     public boolean equals(Object other) {
         return Objects.equals(this.key, ((Item) other).getKey());
     }
-
-
 
 }

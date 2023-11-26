@@ -1,14 +1,11 @@
 package dte.masteriot.mdp.citywanderer.ListOfMonuments;
 
-
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.Menu;
 
@@ -31,12 +28,9 @@ import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -44,10 +38,8 @@ import android.hardware.SensorManager;
 import android.provider.Settings;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.EditText;
-
 import dte.masteriot.mdp.citywanderer.R;
 import dte.masteriot.mdp.citywanderer.RecyclerView.Dataset;
 import dte.masteriot.mdp.citywanderer.RecyclerView.MyAdapter;
@@ -57,34 +49,37 @@ import dte.masteriot.mdp.citywanderer.RecyclerView.MyOnItemActivatedListener;
 
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
+    //Widgets
+    private EditText editText;
 
-    private static final String TAG = "DATASET";
+    //Thread
+    ExecutorService es;
 
-    // App-specific dataset:
+    //Monuments information
     String xmlText;
     private ArrayList<DataPair> monumentNameList = createTestMonumentList();
     private ArrayList<DataPair> monumentListSearch;
-    ExecutorService es;
     MyOnItemActivatedListener onItemActivatedListener;
     public static Dataset dataset;
-
+    private MonumentViewModel monumentViewModel;
+    private boolean searchON = false;
     private RecyclerView recyclerView;
     private SelectionTracker<Long> tracker;
     private static final String URL_XML_MONUMENTS = "https://www.zaragoza.es/sede/servicio/monumento.xml";
+
+
+    //Sensor
+    private SensorManager sensorManager;
+    private Sensor lightSensor;
+
     // MQTT
     final String mqttServerUri = "tcp://192.168.56.1:1883";
     MqttAndroidClient mqttAndroidClient;
     MqttConnectOptions mqttConnectOptions;
     Long tsLong = System.currentTimeMillis()/1000;
-    String clientId = "client" + tsLong.toString();
+    String clientId = "client" + tsLong;
     String tmpString;
     private static MainActivity instance; // implemented to use publish() from InfoMonuments.java
-    private Context mContext;
-    private SensorManager sensorManager;
-    private Sensor lightSensor;
-    private EditText editText;
-    private MonumentViewModel monumentViewModel;
-    private boolean searchON = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,23 +89,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         // Create an executor for the background tasks:
         es = Executors.newSingleThreadExecutor();
-
-        // Execute the loading task in background:
-        Log.d("Initial Parse", "Going to launch background thread...");
-
         monumentViewModel = new ViewModelProvider(this).get(MonumentViewModel.class);
 
         // Get the reference to the sensor manager and the sensor:
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-        ImageButton searchMonument = findViewById(R.id.buttonSearch);
-        editText = findViewById(R.id.plain_text_input);
-        editText.setFocusable(false);
 
         if (lightSensor != null) {
             sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
         }
 
+        //Widgets
+        ImageButton searchMonument = findViewById(R.id.buttonSearch);
+        editText = findViewById(R.id.plain_text_input);
+        editText.setFocusable(false);
+
+        //recyclerView
         if (searchON){
             dataset = new Dataset(monumentListSearch);
         } else {
@@ -140,13 +134,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         recyclerViewAdapter.setSelectionTracker(tracker);
 
         if (savedInstanceState == null) {
-            // Si la actividad es creada por primera vez, descargar datos
+            // If the activity is created for the first time, download data
             tracker.onRestoreInstanceState(savedInstanceState);
             LoadURLContent loadURLContents = new LoadURLContent(handler_initialXMLparce, URL_XML_MONUMENTS);
             es.execute(loadURLContents);
 
         } else {
-            // Si la actividad se está recreando debido a un cambio de configuración, restaurar datos desde el ViewModel
+            // If the activity is being recreated due to a configuration change, restore data from the ViewModel
             monumentNameList = monumentViewModel.getMonumentListLiveData().getValue();
             monumentListSearch = monumentViewModel.getMonumentListSearchLiveData().getValue();
             searchON = monumentViewModel.getSearchBooleanLiveData().getValue();
@@ -164,6 +158,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
+        //Buttons and clickable elements
         searchMonument.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -187,8 +182,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         });
 
-        // Agregar un OnClickListener para habilitar el enfoque cuando se toca el EditText
         editText.setOnClickListener(new View.OnClickListener() {
+            //Add an OnClickListener to enable focus when the EditText is touched
             @Override
             public void onClick(View v) {
                 // Habilitar el enfoque cuando el usuario toque el EditText
@@ -197,6 +192,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         });
 
+        //MQTT
         clientId = clientId + System.currentTimeMillis();
         mqttAndroidClient = new MqttAndroidClient(getApplicationContext(), mqttServerUri, clientId);
         mqttAndroidClient.setCallback(new MqttCallbackExtended() {
@@ -246,79 +242,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
-    private void mqttConnect(MqttConnectOptions mqttConnectOptions) {
-        try {
-            mqttAndroidClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken asyncActionToken) {
-                    DisconnectedBufferOptions disconnectedBufferOptions = new DisconnectedBufferOptions();
-                    disconnectedBufferOptions.setBufferEnabled(true);
-                    disconnectedBufferOptions.setBufferSize(100);
-                    disconnectedBufferOptions.setPersistBuffer(false);
-                    disconnectedBufferOptions.setDeleteOldestMessages(false);
-                    mqttAndroidClient.setBufferOpts(disconnectedBufferOptions);
-                    subscribeToTopic("status");
-                }
-
-                @Override
-                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    addToHistory("Failed to connect to: " + mqttServerUri +
-                            ". Cause: " + ((exception.getCause() == null)?
-                            exception.toString() : exception.getCause()));
-                }
-            });
-        } catch (MqttException e) {
-            e.printStackTrace();
-            addToHistory(e.toString());
-        }
-    }
-
-    private void addToHistory(String mainText) {
-        Log.d("MQTT", "LOG: " + mainText);
+    @Override
+    protected void onPause() {
+        super.onPause();
+        sensorManager.unregisterListener(this);
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-
-        return true;
-    }
-
-    public void subscribeToTopic(String topic) {
-        try {
-            mqttAndroidClient.subscribe(topic, 0, null, new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken asyncActionToken) {
-                    addToHistory("Subscribed to: " + topic);
-                }
-
-                @Override
-                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    addToHistory("Failed to subscribe to: " + topic);
-                }
-            });
-        } catch (MqttException e) {
-            e.printStackTrace();
-            addToHistory(e.toString());
+    protected void onResume() {
+        super.onResume();
+        if (lightSensor != null) {
+            sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
         }
-
-    }
-
-    private void resetTopics() {
-        try {
-            // unsubscribe from all topics
-            mqttAndroidClient.unsubscribe("monuments/#");
-        } catch (MqttException e) {
-            e.printStackTrace();
-            addToHistory(e.toString());
-        }
-        // subscribe to new topics
-        for(int i=0; i<dataset.getSize();i++) {
-            tmpString = dataset.getItemAtPosition(i).getTopic();
-            addToHistory("Going to subscribe to: " + tmpString);
-            subscribeToTopic(tmpString);
-        }
-
     }
 
     @Override
@@ -327,11 +262,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         tracker.onSaveInstanceState(outState); // Save state about selections.
     }
 
-    private ArrayList<DataPair> createTestMonumentList() {
-        ArrayList<DataPair> monumentNamesList = new ArrayList<DataPair>();
-        monumentNamesList.add(new DataPair("Loading monument list...", null));
-        return monumentNamesList;
-    }
 
     Handler handler_initialXMLparce = new Handler(Looper.getMainLooper()) {
         @Override
@@ -362,14 +292,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     };
 
-    public MqttAndroidClient getMqttClient() {
-        return this.mqttAndroidClient;
-    }
-
-    public static MainActivity getInstance() {
-        return instance;
-    }
-
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         if (sensorEvent.sensor.getType() == Sensor.TYPE_LIGHT){
@@ -392,19 +314,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        sensorManager.unregisterListener(this);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (lightSensor != null) {
-            sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
-        }
-    }
 
     private void setBrightness(float brightness) {
         // Before doing anything, we need to ensure that the app has the necessary permission to
@@ -445,6 +354,90 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         return searchList;
 
+    }
+
+    private ArrayList<DataPair> createTestMonumentList() {
+        ArrayList<DataPair> monumentNamesList = new ArrayList<DataPair>();
+        monumentNamesList.add(new DataPair("Loading monument list...", null));
+        return monumentNamesList;
+    }
+
+    /********************* MQTT ******************************/
+
+    private void mqttConnect(MqttConnectOptions mqttConnectOptions) {
+        try {
+            mqttAndroidClient.connect(mqttConnectOptions, null, new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    DisconnectedBufferOptions disconnectedBufferOptions = new DisconnectedBufferOptions();
+                    disconnectedBufferOptions.setBufferEnabled(true);
+                    disconnectedBufferOptions.setBufferSize(100);
+                    disconnectedBufferOptions.setPersistBuffer(false);
+                    disconnectedBufferOptions.setDeleteOldestMessages(false);
+                    mqttAndroidClient.setBufferOpts(disconnectedBufferOptions);
+                    subscribeToTopic("status");
+                }
+
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    addToHistory("Failed to connect to: " + mqttServerUri +
+                            ". Cause: " + ((exception.getCause() == null)?
+                            exception.toString() : exception.getCause()));
+                }
+            });
+        } catch (MqttException e) {
+            e.printStackTrace();
+            addToHistory(e.toString());
+        }
+    }
+
+    private void addToHistory(String mainText) {
+        Log.d("MQTT", "LOG: " + mainText);
+    }
+
+    public void subscribeToTopic(String topic) {
+        try {
+            mqttAndroidClient.subscribe(topic, 0, null, new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    addToHistory("Subscribed to: " + topic);
+                }
+
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    addToHistory("Failed to subscribe to: " + topic);
+                }
+            });
+        } catch (MqttException e) {
+            e.printStackTrace();
+            addToHistory(e.toString());
+        }
+
+    }
+
+    private void resetTopics() {
+        try {
+            // unsubscribe from all topics
+            mqttAndroidClient.unsubscribe("monuments/#");
+        } catch (MqttException e) {
+            e.printStackTrace();
+            addToHistory(e.toString());
+        }
+        // subscribe to new topics
+        for(int i=0; i<dataset.getSize();i++) {
+            tmpString = dataset.getItemAtPosition(i).getTopic();
+            addToHistory("Going to subscribe to: " + tmpString);
+            subscribeToTopic(tmpString);
+        }
+
+    }
+
+    public MqttAndroidClient getMqttClient() {
+        return this.mqttAndroidClient;
+    }
+
+    public static MainActivity getInstance() {
+        return instance;
     }
 
 }

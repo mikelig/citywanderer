@@ -13,8 +13,6 @@ import dte.masteriot.mdp.citywanderer.R;
 
 public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
-    // https://developer.android.com/reference/androidx/recyclerview/widget/RecyclerView.Adapter
-
     private static final String TAG = "MyAdapter";
 
     private final Dataset dataset; // reference to the dataset
@@ -43,7 +41,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
         // (values corresponding to the item in 'position')
 
         final Item item = dataset.getItemAtPosition(position);
-        Long itemKey = item.getKey();
         holder.bindValues(item);
     }
 

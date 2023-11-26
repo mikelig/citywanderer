@@ -4,16 +4,10 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Parcelable;
-import android.text.BoringLayout;
 import android.util.Log;
-
-import com.bumptech.glide.Glide;
-
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -33,9 +27,6 @@ public class LoadURLContent implements Runnable {
     XmlPullParserFactory parserFactory;
 
     public LoadURLContent(Handler handler, String strURL) {
-        // The constructor accepts 2 arguments:
-        // The handler to the creator of this object
-        // The URL to load.
         creator = handler;
         string_URL = strURL;
     }
@@ -58,8 +49,6 @@ public class LoadURLContent implements Runnable {
             String actualContentType = urlConnection.getContentType(); // content-type header from HTTP server
             InputStream is = urlConnection.getInputStream();
 
-            // Extract MIME type and subtype (get rid of the possible parameters present in the content-type header
-            // Content-type: type/subtype;parameter1=value1;parameter2=value2...
             if((actualContentType != null) && (actualContentType.contains(";"))) {
                 Log.d("Initial Parse", ": Complete HTTP content-type header from server = " + actualContentType);
                 int beginparam = actualContentType.indexOf(";", 0);

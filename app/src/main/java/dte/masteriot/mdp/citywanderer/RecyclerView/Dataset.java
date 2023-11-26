@@ -1,7 +1,6 @@
 package dte.masteriot.mdp.citywanderer.RecyclerView;
 
 import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,10 +69,6 @@ public class Dataset {
 
     void removeItemAtPosition(int i) {
         listofitems.remove(i);
-    }
-
-    void removeItemWithKey(Long key) {
-        removeItemAtPosition(getPositionOfKey(key));
     }
 
 }

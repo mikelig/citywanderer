@@ -10,13 +10,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class MyItemKeyProvider extends ItemKeyProvider<Long> {
 
-    // From [https://developer.android.com/reference/androidx/recyclerview/selection/ItemKeyProvider]:
-    // "Provides selection library access to stable selection keys identifying items presented
-    // by a RecyclerView instance."
-
-    // In this app, we decide that our keys will be of type Long.
-    // More info: https://developer.android.com/guide/topics/ui/layout/recyclerview-custom#select
-
     private static final String TAG = "TAGListOfItems, MyItemKeyProvider";
     RecyclerView recView;
 
