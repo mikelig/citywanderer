@@ -68,44 +68,49 @@ import dte.masteriot.mdp.citywanderer.R;
 
 
 public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnInitListener, SensorEventListener {
-    private static final String TAG = "DATASET";
+
     XmlPullParserFactory parserFactory;
-    String xmlText;
-    Toolbar appbar;
-    TextView description;
-    TextView url;
-    String textDescription;
-    ImageView imageView;
-    LineChart chart;
-    String imageUrl;
-    TextView address;
-    String textAddress;
+
+    //Widgets
+    private String xmlText;
+    private Toolbar appbar;
+    private TextView description;
+    private TextView url;
+    private String textDescription;
+    private ImageView imageView;
+    private LineChart chart;
+    private String imageUrl;
+    private TextView address;
+    private String textAddress;
     private TextToSpeech textToSpeech ;
     private Button speakButton;
-    private SensorManager sensorManager;
-    private Sensor lightSensor;
-    private int position;
     private FloatingActionButton button_left;
     private FloatingActionButton button_right;
     private FloatingActionButton button_exit;
-    String textWeb;
-    RadioGroup radioGroup;
-    Button mqttButton;
-    String specificTopic;
-    MqttAndroidClient mqttClient;
-    //String apiKey = getString(R.string.google_cloud_translate_api_key);
-    //Translate translate = TranslateOptions.newBuilder()
-    //        .setApiKey(apiKey)
-    //        .build()
-    //       .getService();
+    private String textWeb;
+    private RadioGroup radioGroup;
+    private Button mqttButton;
+    private String specificTopic;
 
+    //Sensor
+    private SensorManager sensorManager;
+    private Sensor lightSensor;
+
+    //MQTT and chart
+    MqttAndroidClient mqttClient;
     List<ILineDataSet> dataSets;
     List<Entry> ValuesConcurrent;
+
+    //Others
+    private int position;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_infomonuments);
+
+        //Widgets
         appbar = findViewById(R.id.appbar);
         description = findViewById(R.id.descriptionMonument);
         address = findViewById(R.id.address);
@@ -119,6 +124,7 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
         speakButton = findViewById(R.id.textToSpeechButton);
         radioGroup = findViewById(R.id.radioGroup);
         mqttButton = findViewById(R.id.mqttButton);
+
         // Get intent, action and type
         Intent intent = getIntent();
         String action = intent.getAction();
@@ -128,7 +134,6 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
         // Get the reference to the sensor manager and the sensor:
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-
         if (lightSensor != null) {
             sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
         }
@@ -143,11 +148,27 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
         XAxis xAxis = chart.getXAxis();
         xAxis.setValueFormatter(new LineChartXAxisValueFormatter());
 
+        //Get information through intents
+        if (Intent.ACTION_SEND.equals(action)) {
+            xmlText = intent.getStringExtra("XML_TEXT");
+            String monument = intent.getStringExtra("MONUMENT");
+            position = intent.getIntExtra("position",0);
+            Log.d("Swipe", "position: " + position);
+
+            if (monument != null && xmlText != null) {
+                appbar.setTitle(monument);
+                //setSupportActionBar(appbar);
+                get_info_monuments(xmlText, monument);
+            }
+        }
+
+        //Buttons
         speakButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Llama al método para leer el texto
                 speakText(String.valueOf(Html.fromHtml(textDescription)));
+                Toast.makeText(InfoMonument.this, "Reading description", Toast.LENGTH_SHORT).show();
           }
         });
 
@@ -243,54 +264,100 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
             }
         });
 
-        if (Intent.ACTION_SEND.equals(action)) {
-            xmlText = intent.getStringExtra("XML_TEXT");
-            String monument = intent.getStringExtra("MONUMENT");
-            position = intent.getIntExtra("position",0);
-            Log.d("Swipe", "position: " + position);
-
-            if (monument != null && xmlText != null) {
-                appbar.setTitle(monument);
-                //setSupportActionBar(appbar);
-                get_info_monuments(xmlText, monument);
-            }
-        }
-
     }
 
     @Override
     protected void onDestroy() {
+        super.onDestroy();
         // Libera los recursos de TextToSpeech cuando la actividad se destruye
         if (textToSpeech != null) {
             textToSpeech.stop();
             textToSpeech.shutdown();
             dte.masteriot.mdp.citywanderer.RecyclerView.MyOnItemActivatedListener.isItemClicked = false;
         }
-        super.onDestroy();
-}
-
-    // Add a method to get the current time in HH:MM:SS format
-    private String getCurrentTime() {
-        // Use java.util.Calendar to get the current time
-        Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-        return dateFormat.format(calendar.getTime());
+    }
+    protected void onPause() {
+        super.onPause();
+        sensorManager.unregisterListener(this);
+        // Libera los recursos de TextToSpeech cuando la actividad se destruye
+        if (textToSpeech != null) {
+            textToSpeech.stop();
+            textToSpeech.shutdown();
+            dte.masteriot.mdp.citywanderer.RecyclerView.MyOnItemActivatedListener.isItemClicked = false;
+        }
     }
 
-    // Add a method to get the current time in hours
-    private float getTimeInHours() {
-        // Use java.util.Calendar to get the current time
-        Calendar calendar = Calendar.getInstance();
-        int hours = calendar.get(Calendar.HOUR_OF_DAY);
-        int minutes = calendar.get(Calendar.MINUTE);
-        int seconds = calendar.get(Calendar.SECOND);
-
-        // Convert time to hours
-        //float timeInHours = hours + minutes / 60f + seconds / 3600f;
-
-        return seconds;
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (lightSensor != null) {
+            sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        }
     }
 
+    public void onInit(int status) {
+        if (status == TextToSpeech.SUCCESS) {
+            // int langResult = textToSpeech.setLanguage(Locale.ENGLISH);
+            int langResult = textToSpeech.setLanguage(new Locale("es", "ES")); // set Spanish lannguage
+
+            if (langResult == TextToSpeech.LANG_MISSING_DATA ||
+                    langResult == TextToSpeech.LANG_NOT_SUPPORTED) {
+                // Handle language not supported
+            } else {
+                speakButton.setEnabled(true);
+            }
+        } else {
+            // Handle initialization failure
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finishAffinity(); // Cierra la actividad actual y todas las actividades asociadas
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+    }
+
+    //Sensor and brightness
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {  }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        if (sensorEvent.sensor.getType() == Sensor.TYPE_LIGHT){
+            float lightValue = sensorEvent.values[0];
+            if (lightValue < 10) {
+                // Very dark environment, set to a low value
+                setBrightness(0.1f);
+            } else if (lightValue < 100) {
+                // Low light environment, set to a moderate value
+                setBrightness(0.5f);
+            } else {
+                // Well lit environment, set to a high value
+                setBrightness(1.0f);
+            }
+        }
+    }
+
+    private void setBrightness(float brightness) {
+        // Check if automatic brightness adjustment is enabled and disable it if necessary
+        try {
+            int mode = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE);
+            if (mode == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC) {
+                Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE, Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
+            }
+        } catch (Settings.SettingNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        // Adjust screen brightness
+        WindowManager.LayoutParams layoutParams = getWindow().getAttributes();
+        layoutParams.screenBrightness = brightness;
+        getWindow().setAttributes(layoutParams);
+    }
+
+    //Get monuments
     public ArrayList get_info_monuments (String string_XML, String monument_to_find) {
 
         ArrayList info_monuments = new ArrayList<>(); // This string will contain the loaded contents of a text resource
@@ -376,6 +443,41 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
 
     }
 
+    private void speakText(String text) {
+        textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
+    }
+
+    private String manipularHTML(String html) {
+
+        org.jsoup.nodes.Document document = Jsoup.parse(html); // Parsear el HTML con Jsoup
+        document.select("a").remove(); // Seleccionar todas las etiquetas 'a' y su contenido y eliminarlas
+        return document.body().text(); // Obtener el texto modificado
+
+    }
+
+    //MQTT and chart
+    // Add a method to get the current time in HH:MM:SS format
+    private String getCurrentTime() {
+        // Use java.util.Calendar to get the current time
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+        return dateFormat.format(calendar.getTime());
+    }
+
+    // Add a method to get the current time in hours
+    private float getTimeInHours() {
+        // Use java.util.Calendar to get the current time
+        Calendar calendar = Calendar.getInstance();
+        int hours = calendar.get(Calendar.HOUR_OF_DAY);
+        int minutes = calendar.get(Calendar.MINUTE);
+        int seconds = calendar.get(Calendar.SECOND);
+
+        // Convert time to hours
+        //float timeInHours = hours + minutes / 60f + seconds / 3600f;
+
+        return seconds;
+    }
+
     private void do_chart (Entry e) {
 
         // List of datasets:
@@ -406,35 +508,6 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
 
     }
 
-    private void speakText(String text) {
-        textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
-    }
-
-    @Override
-    public void onInit(int status) {
-        if (status == TextToSpeech.SUCCESS) {
-            // int langResult = textToSpeech.setLanguage(Locale.ENGLISH);
-            int langResult = textToSpeech.setLanguage(new Locale("es", "ES")); // set Spanish lannguage
-
-            if (langResult == TextToSpeech.LANG_MISSING_DATA ||
-                    langResult == TextToSpeech.LANG_NOT_SUPPORTED) {
-                // Handle language not supported
-            } else {
-                speakButton.setEnabled(true);
-            }
-        } else {
-            // Handle initialization failure
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        finishAffinity(); // Cierra la actividad actual y todas las actividades asociadas
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-    }
-
     public void publishMessage(MqttAndroidClient mqttClient, String topic, String msg) {
         MqttMessage message = new MqttMessage();
         message.setPayload(msg.getBytes());
@@ -452,58 +525,6 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
         }
     }
 
-    @Override
-    public void onSensorChanged(SensorEvent sensorEvent) {
-        if (sensorEvent.sensor.getType() == Sensor.TYPE_LIGHT){
-            float lightValue = sensorEvent.values[0];
-            if (lightValue < 10) {
-                // Ambiente muy oscuro, ajustar a un valor bajo
-                setBrightness(0.1f);
-            } else if (lightValue < 100) {
-                // Ambiente con poca luz, ajustar a un valor moderado
-                setBrightness(0.5f);
-            } else {
-                // Ambiente bien iluminado, ajustar a un valor alto
-                setBrightness(1.0f);
-            }
-        }
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int i) {
-
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        sensorManager.unregisterListener(this);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (lightSensor != null) {
-            sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
-        }
-    }
-
-    private void setBrightness(float brightness) {
-        // Verificar si el ajuste automático de brillo está habilitado y desactivarlo si es necesario
-        try {
-            int mode = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE);
-            if (mode == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC) {
-                Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE, Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
-            }
-        } catch (Settings.SettingNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        // Ajustar el brillo de la pantalla
-        WindowManager.LayoutParams layoutParams = getWindow().getAttributes();
-        layoutParams.screenBrightness = brightness;
-        getWindow().setAttributes(layoutParams);
-    }
 
     private void setConcurrencyData() {
         // now in hours
@@ -511,16 +532,5 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
 
     }
 
-    private String manipularHTML(String html) {
-        // Parsear el HTML con Jsoup
-        org.jsoup.nodes.Document document = Jsoup.parse(html);
-
-        // Seleccionar todas las etiquetas 'a' y su contenido y eliminarlas
-        document.select("a").remove();
-
-        // Obtener el texto modificado
-        return document.body().text();
-
-    }
 }
 
