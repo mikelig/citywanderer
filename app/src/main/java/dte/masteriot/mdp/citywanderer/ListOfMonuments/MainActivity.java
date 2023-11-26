@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.Menu;
 
@@ -39,12 +40,10 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.provider.Settings;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.EditText;
-import android.widget.ImageButton;
 
 import dte.masteriot.mdp.citywanderer.R;
 import dte.masteriot.mdp.citywanderer.RecyclerView.Dataset;
@@ -59,9 +58,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private static final String TAG = "DATASET";
 
     // App-specific dataset:
-    //private ArrayList<String> monumentNameList = createTestMonumentList();
     String xmlText;
-    private ArrayList<String> monumentNameList = createTestMonumentList();
+    private ArrayList<DataPair> monumentNameList = createTestMonumentList();
     ExecutorService es;
     MyOnItemActivatedListener onItemActivatedListener;
     public static Dataset dataset;
@@ -80,9 +78,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Context mContext;
     private SensorManager sensorManager;
     private Sensor lightSensor;
-    private ImageButton searchMonument;
     private EditText editText;
-    private boolean doThread = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,14 +99,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // Get the reference to the sensor manager and the sensor:
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-        searchMonument = findViewById(R.id.buttonSearch);
+        ImageButton searchMonument = findViewById(R.id.buttonSearch);
         editText = findViewById(R.id.plain_text_input);
 
         if (lightSensor != null) {
             sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
         }
 
-        // Prepare the RecyclerView:
         recyclerView = findViewById(R.id.recyclerView);
         dataset = new Dataset(monumentNameList);
         MyAdapter recyclerViewAdapter = new MyAdapter(dataset);
@@ -284,9 +279,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         tracker.onSaveInstanceState(outState); // Save state about selections.
     }
 
-    private ArrayList createTestMonumentList() {
-        ArrayList<String> monumentNamesList = new ArrayList<>();
-        monumentNamesList.add("Loading monument list...");
+    private ArrayList<DataPair> createTestMonumentList() {
+        ArrayList<DataPair> monumentNamesList = new ArrayList<DataPair>();
+        monumentNamesList.add(new DataPair("Loading monument list...", null));
         return monumentNamesList;
     }
 
@@ -295,16 +290,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         public void handleMessage(@NonNull Message msg) {
             Log.d("Initial Parse", "Entered fun: handler_initialXMLparce.handleMessage");
             // message received from background thread: load complete (or failure)
-            ArrayList<String> monumentNamesList_aux;
             String string_msg;
 
             super.handleMessage(msg);
-            monumentNamesList_aux = msg.getData().getStringArrayList("monuments");
+            ArrayList<DataPair> monumentNamesList_aux = (ArrayList<DataPair>) msg.getData().getSerializable("monuments");
+
             if (monumentNamesList_aux != null){
                 monumentNameList = monumentNamesList_aux;
-                for (int i = 0; i<monumentNameList.size(); i++){
-                    Log.d("Initial Parse", monumentNameList.get(i));
-                }
+
             }
 
             if((string_msg = msg.getData().getString("text")) != null) {
@@ -313,9 +306,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
             // change dataset
             dataset.setNewData(monumentNameList);
-            //mqttDisconnect();
-            //mqttConnect(
-            // mqttConnectOptions);
             resetTopics();
             recyclerView.getAdapter().notifyDataSetChanged();
             onItemActivatedListener.set_XML_text(xmlText);
@@ -396,11 +386,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
 
-    // Función para verificar si un String coincide con alguna parte de los elementos en ArrayList
-    public static ArrayList<String> containsSubstring(ArrayList<String> list, String word) {
-        ArrayList<String> searchList = new ArrayList<>();
-        for (String element : list) {
-            if (element.contains(word)) {
+    public static ArrayList<DataPair> containsSubstring(ArrayList<DataPair> list, String word) {
+        ArrayList<DataPair> searchList = new ArrayList<>();
+        for (DataPair element : list) {
+            if (element.getName().contains(word)) {
                 searchList.add(element);
 
             }

@@ -4,7 +4,11 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Parcelable;
+import android.text.BoringLayout;
 import android.util.Log;
+
+import com.bumptech.glide.Glide;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -24,7 +28,7 @@ import java.util.Collections;
 public class LoadURLContent implements Runnable {
 
     Handler creator; // handler to the main activity, who creates this task
-    private String string_URL;
+    private final String string_URL;
     private static final String CONTENT_TYPE_XML = "application/xml";
     XmlPullParserFactory parserFactory;
 
@@ -46,7 +50,7 @@ public class LoadURLContent implements Runnable {
         HttpURLConnection urlConnection;
         String response = ""; // This string will contain the loaded contents of a text resource
 
-        ArrayList list_monuments = new ArrayList<>(); // This string will contain the loaded contents of a text resource
+        ArrayList<DataPair> list_monuments = new ArrayList<DataPair>(); // This string will contain the loaded contents of a text resource
 
         try {
             URL url = new URL(string_URL);
@@ -82,9 +86,9 @@ public class LoadURLContent implements Runnable {
         list_monuments = get_monuments(response);
         Collections.sort(list_monuments);
 
-        if ("".equals(response) == false && list_monuments.size() != 0) {
+        if (!"".equals(response) && list_monuments.size() != 0) {
             msg_data.putString("text", response);
-            msg_data.putParcelableArrayList("monuments", list_monuments);
+            msg_data.putSerializable("monuments", list_monuments);
         }
         else {
             Log.e("Initial Parse", "no se ha podido desargar el xml o hacer el parce");
@@ -94,9 +98,9 @@ public class LoadURLContent implements Runnable {
 
     }
 
-    public ArrayList get_monuments (String string_XML) {
+    public ArrayList<DataPair> get_monuments (String string_XML) {
 
-        ArrayList monuments = new ArrayList<>(); // This string will contain the loaded contents of a text resource
+        ArrayList<DataPair> monuments = new ArrayList<DataPair>(); // This string will contain the loaded contents of a text resource
 
         try {
 
@@ -108,21 +112,36 @@ public class LoadURLContent implements Runnable {
             parser.setInput(is, null);
 
             int eventType = parser.getEventType(); // current event state of the parser
+            String imageUrl = null;
+            String monument = "";
 
             while (eventType != XmlPullParser.END_DOCUMENT) {
-                String elementName = null;
-                elementName = parser.getName(); // name of the current element
+                String elementName = parser.getName(); // name of the current element
 
                 switch (eventType) {
                     case XmlPullParser.START_TAG:
                         if ("title".equals(elementName)) {
-                            String monument = parser.nextText(); // if next element is TEXT then element content is returned
-                            monuments.add(monument);
-                            Log.d("Initial Parse", "title find" + monument);
+                            monument = parser.nextText(); // if next element is TEXT then element content is returned
+                            imageUrl = null;
 
                         }
+                        else if ("image".equals(elementName)){
+                            imageUrl = parser.nextText();
+
+                        }
+                        break;
+
+                    case XmlPullParser.END_TAG:
+                        if ("monumento".equals(elementName)) {
+                            if (monument != null) {
+                                monuments.add(new DataPair(monument, imageUrl));
+                                Log.d("Initial Parse", "title find: " + monument + " url: " + imageUrl);
+                            }
+                        }
+                        break;
                 }
                 eventType = parser.next(); // Get next parsing event
+
             }
 
         } catch (XmlPullParserException e) {

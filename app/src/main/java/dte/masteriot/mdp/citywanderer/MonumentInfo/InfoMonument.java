@@ -73,23 +73,16 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
 
     //Widgets
     private String xmlText;
-    private Toolbar appbar;
     private TextView description;
     private TextView url;
     private String textDescription;
     private ImageView imageView;
     private LineChart chart;
-    private String imageUrl;
     private TextView address;
-    private String textAddress;
     private TextToSpeech textToSpeech ;
     private Button speakButton;
-    private FloatingActionButton button_left;
-    private FloatingActionButton button_right;
-    private FloatingActionButton button_exit;
     private String textWeb;
     private RadioGroup radioGroup;
-    private Button mqttButton;
     private String specificTopic;
 
     //Sensor
@@ -111,19 +104,19 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
         setContentView(R.layout.activity_infomonuments);
 
         //Widgets
-        appbar = findViewById(R.id.appbar);
+        Toolbar appbar = findViewById(R.id.appbar);
         description = findViewById(R.id.descriptionMonument);
         address = findViewById(R.id.address);
         imageView = findViewById(R.id.imageMonument);
         url = findViewById(R.id.url);
         chart = (LineChart) findViewById(R.id.chart);
-        button_left = findViewById(R.id.left);
-        button_right = findViewById(R.id.right);
-        button_exit = findViewById(R.id.exit);
+        FloatingActionButton button_left = findViewById(R.id.left);
+        FloatingActionButton button_right = findViewById(R.id.right);
+        FloatingActionButton button_exit = findViewById(R.id.exit);
         textToSpeech = new TextToSpeech(this, this);
         speakButton = findViewById(R.id.textToSpeechButton);
         radioGroup = findViewById(R.id.radioGroup);
-        mqttButton = findViewById(R.id.mqttButton);
+        Button mqttButton = findViewById(R.id.mqttButton);
 
         // Get intent, action and type
         Intent intent = getIntent();
@@ -402,13 +395,13 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
                         }
                         else if ("address".equals(elementName)){
                             if (monument_found){
-                                textAddress = parser.nextText();
+                                String textAddress = parser.nextText();
                                 address.setText(Html.fromHtml(textAddress));
                             }
                         }
                         else if ("image".equals(elementName)){
                             if (monument_found){
-                                imageUrl = parser.nextText();
+                                String imageUrl = parser.nextText();
                                 Glide.with(this).load(imageUrl).into(imageView);
                             }
                         }

@@ -44,7 +44,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
 
         final Item item = dataset.getItemAtPosition(position);
         Long itemKey = item.getKey();
-        boolean isItemSelected = selectionTracker.isSelected(itemKey);
         holder.bindValues(item);
     }
 

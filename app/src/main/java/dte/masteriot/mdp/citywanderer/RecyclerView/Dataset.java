@@ -5,21 +5,27 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
+import dte.masteriot.mdp.citywanderer.ListOfMonuments.DataPair;
+
 public class Dataset {
 
     // This dataset is a list of Items
-
     private static final String TAG = "DATASET";
     private List<Item> listofitems;
 
-    public Dataset(ArrayList<String> namesList) {
-        Log.d(TAG, "Dataset() called, namesList = " + namesList.toString());
+    public Dataset(ArrayList<DataPair> monumentList) {
+        Log.d(TAG, "Dataset() called, namesList = " + monumentList.toString());
         listofitems = new ArrayList<>();
-        for(int i = 0; i < namesList.size(); i++) {
-            String monumentName = namesList.get(i);
-            Log.d(TAG, "Dataset() called, monumentName = " + monumentName + " i = " + Integer.toString(i));
-            listofitems.add(new Item(monumentName , (long) i, convertToValidTopic(monumentName)));
+        int position = 0;
+
+        for (DataPair data : monumentList) {
+            String name = data.getName();
+            String url = data.getImageUrl();
+            listofitems.add(new Item(name, url , (long) position, convertToValidTopic(name)));
+            position++;
+
         }
+
     }
 
     public static String convertToValidTopic(String input) {
@@ -42,23 +48,24 @@ public class Dataset {
     public int getPositionOfKey(Long searchedkey) {
         // Look for the position of the Item with key = searchedkey.
         // The following works because in Item, the method "equals" is overriden to compare only keys:
-        int position = listofitems.indexOf(new Item("placeholder", searchedkey, "placeholder"));
+        int position = listofitems.indexOf(new Item("placeholder","url", searchedkey, "placeholder"));
         //Log.d(TAG, "getPositionOfKey() called for key " + searchedkey + ", returns " + position);
         return position;
     }
 
-    public void setNewData(ArrayList<String> newList) {
+    public void setNewData(ArrayList<DataPair> newList) {
         Log.d(TAG, "Dataset() called, namesList = " + newList.toString());
         listofitems = new ArrayList<>();
-        for(int i = 0; i < newList.size(); i++) {
-            String monumentName = newList.get(i);
-            Log.d(TAG, "Dataset() called, monumentName = " + monumentName + " i = " + Integer.toString(i));
-            listofitems.add(new Item(monumentName , (long) i, convertToValidTopic(monumentName)));
-        }
-    }
+        int position = 0;
 
-    public void createMqttTopics() {
-        //
+        for (DataPair data : newList) {
+            String name = data.getName();
+            String url = data.getImageUrl();
+            listofitems.add(new Item(name, url , (long) position, convertToValidTopic(name)));
+            position++;
+
+        }
+
     }
 
     void removeItemAtPosition(int i) {
