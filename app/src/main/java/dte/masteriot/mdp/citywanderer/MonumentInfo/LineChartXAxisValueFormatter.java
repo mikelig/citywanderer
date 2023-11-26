@@ -32,7 +32,7 @@ public class LineChartXAxisValueFormatter extends IndexAxisValueFormatter {
 
         // Create a SimpleDateFormat with the desired date format
         // SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
 
         // Format the Date object to the specified format
         return dateFormat.format(date);

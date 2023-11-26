@@ -363,7 +363,6 @@ public class InfoMonument extends AppCompatActivity implements TextToSpeech.OnIn
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             parser.setInput(is, null);
 
-            do_chart(0,0);
 
             int eventType = parser.getEventType(); // current event state of the parser
             boolean monument_found = false;
