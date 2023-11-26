@@ -2,6 +2,7 @@ package dte.masteriot.mdp.citywanderer.ListOfMonuments;
 
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,6 +14,7 @@ import android.view.Menu;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.selection.ItemKeyProvider;
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.selection.StorageStrategy;
@@ -42,6 +44,7 @@ import android.hardware.SensorManager;
 import android.provider.Settings;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.EditText;
 
@@ -60,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     // App-specific dataset:
     String xmlText;
     private ArrayList<DataPair> monumentNameList = createTestMonumentList();
+    private ArrayList<DataPair> monumentListSearch;
     ExecutorService es;
     MyOnItemActivatedListener onItemActivatedListener;
     public static Dataset dataset;
@@ -79,13 +83,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private SensorManager sensorManager;
     private Sensor lightSensor;
     private EditText editText;
+    private MonumentViewModel monumentViewModel;
+    private boolean searchON = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         instance = this;
-        //setupToolbar();
 
         // Create an executor for the background tasks:
         es = Executors.newSingleThreadExecutor();
@@ -93,21 +98,26 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // Execute the loading task in background:
         Log.d("Initial Parse", "Going to launch background thread...");
 
-        LoadURLContent loadURLContents = new LoadURLContent(handler_initialXMLparce, URL_XML_MONUMENTS);
-        es.execute(loadURLContents);
+        monumentViewModel = new ViewModelProvider(this).get(MonumentViewModel.class);
 
         // Get the reference to the sensor manager and the sensor:
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
         ImageButton searchMonument = findViewById(R.id.buttonSearch);
         editText = findViewById(R.id.plain_text_input);
+        editText.setFocusable(false);
 
         if (lightSensor != null) {
             sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
         }
 
+        if (searchON){
+            dataset = new Dataset(monumentListSearch);
+        } else {
+            dataset = new Dataset(monumentNameList);
+        }
+
         recyclerView = findViewById(R.id.recyclerView);
-        dataset = new Dataset(monumentNameList);
         MyAdapter recyclerViewAdapter = new MyAdapter(dataset);
         recyclerView.setAdapter(recyclerViewAdapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -123,16 +133,35 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 "my-selection-id",
                 recyclerView,
                 new MyItemKeyProvider(ItemKeyProvider.SCOPE_MAPPED, recyclerView),
-//                new StableIdKeyProvider(recyclerView), // This caused the app to crash on long clicks
                 new MyItemDetailsLookup(recyclerView),
                 StorageStrategy.createLongStorage())
                 .withOnItemActivatedListener(onItemActivatedListener)
                 .build();
         recyclerViewAdapter.setSelectionTracker(tracker);
 
-        if (savedInstanceState != null) {
-            // Restore state related to selections previously made
+        if (savedInstanceState == null) {
+            // Si la actividad es creada por primera vez, descargar datos
             tracker.onRestoreInstanceState(savedInstanceState);
+            LoadURLContent loadURLContents = new LoadURLContent(handler_initialXMLparce, URL_XML_MONUMENTS);
+            es.execute(loadURLContents);
+
+        } else {
+            // Si la actividad se está recreando debido a un cambio de configuración, restaurar datos desde el ViewModel
+            monumentNameList = monumentViewModel.getMonumentListLiveData().getValue();
+            monumentListSearch = monumentViewModel.getMonumentListSearchLiveData().getValue();
+            searchON = monumentViewModel.getSearchBooleanLiveData().getValue();
+            xmlText = monumentViewModel.getXMLTextLiveData().getValue();
+
+            if (searchON){
+                dataset.setNewData(monumentListSearch);
+
+            } else {
+                dataset.setNewData(monumentNameList);
+            }
+
+            recyclerView.getAdapter().notifyDataSetChanged();
+            onItemActivatedListener.set_XML_text(xmlText);
+
         }
 
         searchMonument.setOnClickListener(new View.OnClickListener() {
@@ -144,20 +173,31 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     dataset.setNewData(monumentNameList);
                     recyclerView.getAdapter().notifyDataSetChanged();
                     onItemActivatedListener.set_XML_text(xmlText);
+                    searchON = false;
 
                 } else {
                     // change dataset
-                    dataset.setNewData(containsSubstring( monumentNameList, textForSearch ));
+                    monumentListSearch = containsSubstring( monumentNameList, textForSearch );
+                    dataset.setNewData(monumentListSearch);
                     recyclerView.getAdapter().notifyDataSetChanged();
                     onItemActivatedListener.set_XML_text(xmlText);
+                    searchON = true;
                 }
-
 
             }
         });
 
-        clientId = clientId + System.currentTimeMillis();
+        // Agregar un OnClickListener para habilitar el enfoque cuando se toca el EditText
+        editText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Habilitar el enfoque cuando el usuario toque el EditText
+                editText.setFocusableInTouchMode(true);
+                editText.requestFocus();
+            }
+        });
 
+        clientId = clientId + System.currentTimeMillis();
         mqttAndroidClient = new MqttAndroidClient(getApplicationContext(), mqttServerUri, clientId);
         mqttAndroidClient.setCallback(new MqttCallbackExtended() {
             @Override
@@ -193,10 +233,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         addToHistory("Connecting to " + mqttServerUri + "...");
         mqttConnect(mqttConnectOptions);
 
-        //mqtttest();
-
     }
 
+
+    protected void onStop () {
+        super.onStop();
+        // Guardar el estado actual en el ViewModel
+        monumentViewModel.setMonumentListSearchLiveData(monumentListSearch);
+        monumentViewModel.setMonumentList(monumentNameList);
+        monumentViewModel.setSearchBoolean(searchON);
+        monumentViewModel.setXMLtext(xmlText);
+
+    }
 
     private void mqttConnect(MqttConnectOptions mqttConnectOptions) {
         try {
@@ -304,6 +352,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 xmlText = string_msg;
                 Log.d("Initial Parse", xmlText);
             }
+
             // change dataset
             dataset.setNewData(monumentNameList);
             resetTopics();
